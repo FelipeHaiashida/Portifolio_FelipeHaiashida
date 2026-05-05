@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Felipe Haiashida — Portfólio</title>
+<meta name="description" content="Portfólio de Felipe Haiashida Carvalho — VR/AR Developer e Project Coordinator." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg: #0a0a09;
+    --fg: #f4ecd8;
+    --accent: #f5b524;
+    --muted: #292723;
+  }
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; }
+  .font-mono    { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  .grain::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.5; mix-blend-mode: overlay;
+  }
+  .glow-amber { box-shadow: 0 0 80px -20px rgba(245, 181, 36, 0.25); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .marquee { animation: marquee 30s linear infinite; }
+
+  /* Inline editable */
+  [contenteditable="true"]:empty::before { content: attr(data-placeholder); opacity: 0.35; }
+  [contenteditable="true"] { outline: none; transition: background-color .2s, box-shadow .2s; border-radius: 2px; padding: 0 4px; margin: 0 -4px; }
+  [contenteditable="true"]:focus { background-color: rgba(245, 181, 36, 0.10); box-shadow: 0 0 0 1px rgba(245, 181, 36, 0.40); }
+  [contenteditable="true"]:hover:not(:focus) { background-color: rgba(245, 181, 36, 0.04); }
+
+  body.editing .editable-only { display: inline-flex; }
+  body:not(.editing) .editable-only { display: none !important; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--muted); color: var(--fg); padding: 10px 18px; border-radius: 999px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; z-index: 100; border: 1px solid rgba(245, 181, 36, 0.3); }
+  .toast.error { border-color: rgba(248, 113, 113, 0.5); color: #fca5a5; }
+
+  ::selection { background: var(--accent); color: var(--bg); }
+</style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden">
+  <div class="grain"></div>
+  <div id="app"></div>
+  <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/ogg,video/quicktime" style="display:none" />
+
+<script>
+// ============================================================
+// === DEFAULT_DATA_START — não remova esses comentários ====
+// ============================================================
+const DEFAULT_DATA = {
+  hero: {
+    name: "Felipe Haiashida\nCarvalho",
+    role: "VR/AR Developer · Project Coordinator",
+    tagline: "Construindo experiências educacionais imersivas — de Fortaleza para o mundo.",
+    location: "Fortaleza — CE, Brasil",
+    email: "felipehaiashida@gmail.com",
+    phone: "+55 (85) 99439-4479",
+    github: "https://github.com/",
+    linkedin: "https://linkedin.com/in/"
+  },
+  intro: "Graduando em Ciência da Computação no IFCE, atuo na coordenação e desenvolvimento de projetos em realidade virtual e aumentada na Huawei ICT Academy. Tenho foco em soluções educacionais com impacto social, gestão de projetos e ambientes colaborativos.",
+  projects: [
+    {
+      id: "p1",
+      title: "Treinamento de Montagem Virtual com Multiplayer",
+      year: "2025",
+      role: "Coordenação · Desenvolvimento VR",
+      description: "Aplicação de realidade virtual para treinamento de montagem com modo multiplayer colaborativo. Coordenação do fluxo de trabalho, definição de etapas e implementação de funcionalidades de presença em rede.",
+      videoUrl: "",
+      tags: ["Unity", "VR", "Multiplayer", "C#"]
+    },
+    {
+      id: "p2",
+      title: "Plataforma de Experimentos em VR para Educação",
+      year: "2025",
+      role: "Planejamento · Desenvolvimento",
+      description: "Plataforma educacional em realidade virtual para a aplicação prática de experimentos. Definição de escopo, funcionalidades e foco em impacto social no contexto educacional brasileiro.",
+      videoUrl: "",
+      tags: ["Unity", "VR", "Educação", "Meta SDK"]
+    },
+    {
+      id: "p3",
+      title: "Laboratório Virtual de História",
+      year: "2025",
+      role: "Estruturação · UX",
+      description: "Ambiente educacional interativo para o ensino de História. Estruturação da experiência do usuário e dos conteúdos, com foco em uma solução acessível e envolvente para escolas públicas.",
+      videoUrl: "",
+      tags: ["Unity", "VR", "UX", "Educação"]
+    }
+  ],
+  experience: [
+    {
+      id: "e1",
+      role: "Estagiário — Projetos em VR/AR",
+      org: "Huawei ICT Academy · IFCE",
+      period: "Jul 2024 — Atual",
+      points: "Planejamento e execução de projetos em VR/AR. Colaboração com equipes técnicas, testes, validação e melhorias contínuas em soluções educacionais."
+    },
+    {
+      id: "e2",
+      role: "Mentor — Curso de Web 3.0",
+      org: "Irede · Fortaleza",
+      period: "2026",
+      points: "Acompanhamento e orientação de projetos de estudantes. Definição de metas, condução de encontros e suporte na resolução de problemas."
+    },
+    {
+      id: "e3",
+      role: "Palestrante",
+      org: "Semana de Engenharia da UFC",
+      period: "—",
+      points: "Palestra sobre tecnologias imersivas. Workshops e demonstrações em escolas públicas, com experiência em comunicação para públicos diversos."
+    }
+  ],
+  skills: {
+    tech: ["C#", "Python", "Unity 3D", "VR / AR", "Meta SDK", "MySQL", "Git", "GitHub"],
+    soft: ["Planejamento de projetos", "Organização de prazos", "Comunicação com stakeholders", "Liderança técnica", "Resolução de problemas"],
+    languages: ["Português — Nativo", "Inglês — Intermediário/Avançado"]
+  },
+  education: [
+    { id: "ed1", title: "Bacharelado em Ciência da Computação", org: "IFCE — Instituto Federal do Ceará", period: "2023 — 2027" },
+    { id: "ed2", title: "Mentoria Técnica em Tecnologias Huawei", org: "Huawei ICT Academy · IFCE", period: "2024" },
+    { id: "ed3", title: "Liderança Técnica — Habilidades para Inspirar Equipes", org: "Rocketseat", period: "Out 2025" }
+  ]
+};
+// ============================================================
+// === DEFAULT_DATA_END — não remova esses comentários =======
+// ============================================================
+
+const STORAGE_KEY = "felipe-portfolio-v1";
+
+const state = {
+  data: JSON.parse(JSON.stringify(DEFAULT_DATA)),
+  editing: false,
+  videoModal: null,
+  blobUrls: {},      // { projectId: blobURL } — preview local de MP4 não-salvo
+  pendingFiles: {},  // { projectId: File } — arquivo aguardando ser salvo no repo
+};
+
+// Carrega edições salvas
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) state.data = { ...state.data, ...JSON.parse(saved) };
+} catch(e) {}
+
+// ============================================================
+// UTILS
+// ============================================================
+function esc(s) {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function escAttr(s) { return esc(s).replace(/\n/g, " "); }
+
+function nl2br(s) {
+  return esc(s).split("\n").map(l => l).join("<br>");
+}
+
+function parseVideo(url, projectId) {
+  // Blob local (preview de upload recente) tem prioridade
+  if (projectId && state.blobUrls[projectId]) {
+    return { type: "video", src: state.blobUrls[projectId] };
+  }
+  if (!url || typeof url !== "string") return null;
+  const u = url.trim();
+  if (!u) return null;
+
+  // YouTube
+  const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&\n?#]+)/);
+  if (yt) return { type: "iframe", src: `https://www.youtube.com/embed/${yt[1]}?rel=0&modestbranding=1` };
+
+  // Vimeo
+  const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vm) return { type: "iframe", src: `https://player.vimeo.com/video/${vm[1]}` };
+
+  // Arquivo de vídeo (mp4/webm/ogg/mov), URL absoluta ou caminho relativo (videos/foo.mp4)
+  if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(u)) return { type: "video", src: u };
+
+  // Outras URLs http
+  if (u.startsWith("http")) return { type: "iframe", src: u };
+
+  return null;
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    showToast("salvo");
+  } catch(e) {
+    showToast("erro ao salvar", true);
+  }
+}
+
+let toastTimer = null;
+function showToast(msg, error = false) {
+  const existing = document.querySelector(".toast");
+  if (existing) existing.remove();
+  if (toastTimer) clearTimeout(toastTimer);
+  const t = document.createElement("div");
+  t.className = "toast" + (error ? " error" : "");
+  t.textContent = msg;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 1800);
+}
+
+function updatePath(path, value) {
+  const keys = path.split(".");
+  let obj = state.data;
+  for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]];
+  obj[keys[keys.length - 1]] = value;
+  saveToStorage();
+}
+
+// ============================================================
+// EDITABLE
+// ============================================================
+function editable(path, value, opts = {}) {
+  const { tag = "span", className = "", multiline = false, placeholder = "—" } = opts;
+  const display = value || "";
+  if (state.editing) {
+    return `<${tag} contenteditable="true" data-edit="${escAttr(path)}" ${multiline ? 'data-multiline="1"' : ""} class="${className}" data-placeholder="${escAttr(placeholder)}">${multiline ? nl2br(display) : esc(display)}</${tag}>`;
+  }
+  if (multiline) {
+    return `<${tag} class="${className}">${display ? nl2br(display) : `<span class="opacity-40">${esc(placeholder)}</span>`}</${tag}>`;
+  }
+  return `<${tag} class="${className}">${display ? esc(display) : `<span class="opacity-40">${esc(placeholder)}</span>`}</${tag}>`;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+
+function renderApp() {
+  const d = state.data;
+  return `
+    ${renderToolbar()}
+    ${renderTopStrip()}
+    ${renderHero(d)}
+    ${renderProjects(d)}
+    ${renderAbout(d)}
+    ${renderExperience(d)}
+    ${renderSkillsEducation(d)}
+    ${renderFooter(d)}
+    ${state.videoModal ? renderVideoModal() : ""}
+  `;
+}
+
+function renderToolbar() {
+  return `
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+      <button data-action="export" class="editable-only font-mono text-[10px] tracking-widest uppercase px-3 py-2 rounded-full bg-neutral-900 border border-neutral-800 hover:border-amber-400/60 transition-colors items-center gap-1.5">
+        ↓ baixar html
+      </button>
+      <button data-action="reset" class="editable-only font-mono text-[10px] tracking-widest uppercase px-3 py-2 rounded-full bg-neutral-900 border border-neutral-800 hover:border-red-500/40 hover:text-red-400 transition-colors items-center gap-1.5">
+        ↺ reset
+      </button>
+      <button data-action="toggle-edit" class="font-mono text-[10px] tracking-widest uppercase px-3 py-2 rounded-full border transition-all flex items-center gap-1.5 ${state.editing ? 'bg-amber-400 text-neutral-950 border-amber-400 hover:bg-amber-300' : 'bg-neutral-900 text-amber-50 border-neutral-800 hover:border-amber-400/60'}">
+        ${state.editing ? "✓ concluir" : "✎ editar"}
+      </button>
+    </div>
+  `;
+}
+
+function renderTopStrip() {
+  return `
+    <div class="border-b border-neutral-800/60 relative z-10">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 py-3 flex items-center justify-between font-mono text-[10px] tracking-widest uppercase opacity-70">
+        <span>Portfolio · 2026</span>
+        <span class="hidden md:inline">VR/AR · Educação · Liderança Técnica</span>
+        <span>Vol. 01</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderHero(d) {
+  return `
+    <header class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 pt-16 md:pt-24 pb-20 md:pb-32">
+      <div class="grid md:grid-cols-12 gap-8 items-end">
+        <div class="md:col-span-8 fade-up">
+          <div class="font-mono text-[11px] tracking-widest uppercase text-amber-400 mb-6 flex items-center gap-3">
+            <span class="inline-block w-8 h-px bg-amber-400"></span>
+            <span>01 — Apresentação</span>
+          </div>
+          ${editable("hero.name", d.hero.name, { tag: "h1", className: "font-display text-6xl md:text-8xl lg:text-9xl font-light leading-[0.92] tracking-tight italic", multiline: true })}
+          ${editable("hero.role", d.hero.role, { tag: "div", className: "font-mono text-xs md:text-sm tracking-widest uppercase mt-6 text-amber-400/90" })}
+        </div>
+        <div class="md:col-span-4 md:pl-8 md:border-l border-neutral-800 fade-up" style="animation-delay: 0.15s">
+          ${editable("hero.tagline", d.hero.tagline, { tag: "p", className: "font-display text-lg md:text-xl italic font-light leading-snug text-amber-50/80 mb-8", multiline: true })}
+          <ul class="space-y-2.5 font-mono text-xs">
+            <li class="flex items-center gap-3 text-amber-50/70">
+              <span class="text-amber-400 shrink-0">⌖</span>
+              ${editable("hero.location", d.hero.location, { tag: "span" })}
+            </li>
+            <li class="flex items-center gap-3 text-amber-50/70">
+              <span class="text-amber-400 shrink-0">✉</span>
+              ${editable("hero.email", d.hero.email, { tag: "span" })}
+            </li>
+            <li class="flex items-center gap-3 text-amber-50/70">
+              <span class="text-amber-400 shrink-0">☎</span>
+              ${editable("hero.phone", d.hero.phone, { tag: "span" })}
+            </li>
+            <li class="flex items-center gap-3 text-amber-50/70">
+              <span class="text-amber-400 shrink-0">◆</span>
+              ${editable("hero.github", d.hero.github, { tag: "span", className: "truncate" })}
+            </li>
+            <li class="flex items-center gap-3 text-amber-50/70">
+              <span class="text-amber-400 shrink-0">▣</span>
+              ${editable("hero.linkedin", d.hero.linkedin, { tag: "span", className: "truncate" })}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-20 md:mt-28 border-y border-neutral-800/60 py-4 overflow-hidden">
+        <div class="marquee whitespace-nowrap font-display italic text-3xl md:text-5xl text-amber-50/30 flex gap-12">
+          ${[1,2].map(() => `
+            <span class="flex items-center gap-12">
+              <span>Realidade Virtual</span><span class="text-amber-400">✦</span>
+              <span>Educação Imersiva</span><span class="text-amber-400">✦</span>
+              <span>Liderança Técnica</span><span class="text-amber-400">✦</span>
+              <span>Unity 3D</span><span class="text-amber-400">✦</span>
+              <span>Multiplayer</span><span class="text-amber-400">✦</span>
+            </span>
+          `).join("")}
+        </div>
+      </div>
+    </header>
+  `;
+}
+
+function renderProjects(d) {
+  return `
+    <section class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-32">
+      <div class="flex items-end justify-between mb-12 md:mb-20 flex-wrap gap-4">
+        <div>
+          <div class="font-mono text-[11px] tracking-widest uppercase text-amber-400 mb-4 flex items-center gap-3">
+            <span class="inline-block w-8 h-px bg-amber-400"></span>
+            <span>02 — Projetos selecionados</span>
+          </div>
+          <h2 class="font-display text-5xl md:text-7xl font-light italic leading-none">O trabalho.</h2>
+        </div>
+        <button data-action="add-project" class="editable-only font-mono text-[10px] tracking-widest uppercase px-4 py-2.5 rounded-full bg-amber-400 text-neutral-950 hover:bg-amber-300 transition-colors items-center gap-1.5">
+          + adicionar projeto
+        </button>
+      </div>
+      <div class="space-y-24 md:space-y-40">
+        ${d.projects.map((p, i) => renderProject(p, i)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderProject(p, i) {
+  const reverse = i % 2 === 1;
+  const video = parseVideo(p.videoUrl, p.id);
+  const pendingFile = state.pendingFiles[p.id];
+
+  return `
+    <article class="grid md:grid-cols-12 gap-6 md:gap-10 group relative fade-up" data-project-id="${esc(p.id)}">
+      <div class="md:col-span-1 md:order-1 font-mono text-xs tracking-widest text-amber-400/70">
+        ${String(i + 1).padStart(2, "0")} /
+      </div>
+      <div class="md:col-span-7 ${reverse ? 'md:order-2' : 'md:order-3'}">
+        <div class="relative aspect-video bg-neutral-900 border border-neutral-800 overflow-hidden glow-amber group/v">
+          ${video ? renderVideoPreview(video, i, p.id) : renderEmptyVideo(i)}
+        </div>
+        ${state.editing ? renderVideoControls(p, pendingFile) : ""}
+      </div>
+      <div class="md:col-span-4 ${reverse ? 'md:order-3' : 'md:order-2'} flex flex-col justify-center">
+        <div class="flex items-center gap-3 mb-3 font-mono text-[10px] tracking-widest uppercase text-amber-400/80">
+          ${editable(`projects.${i}.year`, p.year, { tag: "span" })}
+          <span class="opacity-40">·</span>
+          ${editable(`projects.${i}.role`, p.role, { tag: "span" })}
+        </div>
+        ${editable(`projects.${i}.title`, p.title, { tag: "h3", className: "font-display text-3xl md:text-4xl font-light italic leading-tight mb-4" })}
+        ${editable(`projects.${i}.description`, p.description, { tag: "p", className: "text-sm md:text-base text-amber-50/70 leading-relaxed mb-5", multiline: true })}
+        <div class="flex flex-wrap gap-2">
+          ${p.tags.map((t, ti) => `
+            <span class="font-mono text-[10px] tracking-widest uppercase border border-amber-400/30 text-amber-400/90 px-2.5 py-1 rounded-full">
+              ${state.editing
+                ? `<input type="text" value="${escAttr(t)}" data-tag-edit="${esc(p.id)}|${ti}" class="bg-transparent outline-none w-20" />`
+                : esc(t)}
+            </span>
+          `).join("")}
+          <button data-action="add-tag" data-pid="${esc(p.id)}" class="editable-only font-mono text-[10px] tracking-widest uppercase border border-dashed border-neutral-700 hover:border-amber-400/60 px-2.5 py-1 rounded-full items-center">+ tag</button>
+          ${p.tags.length > 0 ? `<button data-action="remove-tag" data-pid="${esc(p.id)}" class="editable-only font-mono text-[10px] tracking-widest uppercase border border-dashed border-neutral-700 hover:border-red-400/60 px-2.5 py-1 rounded-full items-center">−</button>` : ""}
+        </div>
+        <button data-action="remove-project" data-pid="${esc(p.id)}" class="editable-only mt-6 self-start font-mono text-[10px] tracking-widest uppercase text-red-400/70 hover:text-red-400 items-center gap-1.5">🗑 remover projeto</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderVideoPreview(video, i, pid) {
+  const inner = video.type === "iframe"
+    ? `<iframe src="${esc(video.src)}${video.src.includes("?") ? "&" : "?"}controls=0" class="w-full h-full pointer-events-none" title="preview"></iframe>`
+    : `<video src="${esc(video.src)}" class="w-full h-full object-cover" muted playsinline></video>`;
+
+  return `
+    <button data-action="play-video" data-pid="${esc(pid)}" class="w-full h-full relative cursor-pointer block">
+      ${inner}
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 flex items-center justify-center">
+        <div class="w-20 h-20 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center shadow-2xl group-hover/v:scale-110 transition-transform">
+          <span style="font-size:28px; margin-left:4px;">▶</span>
+        </div>
+      </div>
+    </button>
+  `;
+}
+
+function renderEmptyVideo(i) {
+  return `
+    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-900 via-neutral-950 to-amber-950/20">
+      <div class="text-center px-6">
+        <div class="font-display text-7xl italic text-amber-400/30 leading-none">${String(i + 1).padStart(2, "0")}</div>
+        <div class="font-mono text-[10px] tracking-widest uppercase text-amber-50/40 mt-3">${state.editing ? "envie um mp4 ou cole um link" : "vídeo em breve"}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderVideoControls(p, pendingFile) {
+  return `
+    <div class="mt-3 space-y-2">
+      <div class="flex items-center gap-2">
+        <span class="font-mono text-[10px] tracking-widest uppercase text-amber-400/70 shrink-0">link →</span>
+        <input type="text" value="${escAttr(p.videoUrl)}" data-video-url="${esc(p.id)}" placeholder="videos/meu-video.mp4 — youtube.com/… — vimeo.com/…" class="flex-1 bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs font-mono outline-none focus:border-amber-400/60 transition-colors" />
+        <button data-action="upload-video" data-pid="${esc(p.id)}" class="font-mono text-[10px] tracking-widest uppercase px-3 py-2 rounded bg-amber-400 text-neutral-950 hover:bg-amber-300 transition-colors shrink-0">
+          ↑ mp4
+        </button>
+      </div>
+      ${pendingFile ? `
+        <div class="text-[10px] font-mono text-amber-400/90 bg-amber-400/10 border border-amber-400/30 rounded px-3 py-2">
+          <strong>⚠ ação necessária:</strong> salve o arquivo <code class="bg-black/30 px-1.5 py-0.5 rounded">${esc(pendingFile.name)}</code> (${(pendingFile.size / 1024 / 1024).toFixed(1)} MB) na pasta <code class="bg-black/30 px-1.5 py-0.5 rounded">videos/</code> do seu repositório no GitHub para o vídeo funcionar online.
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
+
+function renderAbout(d) {
+  return `
+    <section class="relative z-10 border-y border-neutral-800/60 bg-neutral-900/30">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-28 grid md:grid-cols-12 gap-8">
+        <div class="md:col-span-4">
+          <div class="font-mono text-[11px] tracking-widest uppercase text-amber-400 mb-4 flex items-center gap-3">
+            <span class="inline-block w-8 h-px bg-amber-400"></span>
+            <span>03 — Sobre</span>
+          </div>
+          <h2 class="font-display text-4xl md:text-5xl font-light italic leading-none">Quem está por trás.</h2>
+        </div>
+        <div class="md:col-span-8 md:pl-12">
+          ${editable("intro", d.intro, { tag: "p", className: "font-display text-2xl md:text-3xl font-light leading-snug text-amber-50/85", multiline: true })}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderExperience(d) {
+  return `
+    <section class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-32">
+      <div class="flex items-end justify-between mb-12 md:mb-16 flex-wrap gap-4">
+        <div>
+          <div class="font-mono text-[11px] tracking-widest uppercase text-amber-400 mb-4 flex items-center gap-3">
+            <span class="inline-block w-8 h-px bg-amber-400"></span>
+            <span>04 — Trajetória</span>
+          </div>
+          <h2 class="font-display text-5xl md:text-7xl font-light italic leading-none">Experiência.</h2>
+        </div>
+        <button data-action="add-experience" class="editable-only font-mono text-[10px] tracking-widest uppercase px-4 py-2.5 rounded-full bg-amber-400 text-neutral-950 hover:bg-amber-300 transition-colors items-center gap-1.5">+ adicionar</button>
+      </div>
+      <div>
+        ${d.experience.map((e, i) => `
+          <div class="grid md:grid-cols-12 gap-4 md:gap-8 py-8 border-t border-neutral-800/60 group relative" data-exp-id="${esc(e.id)}">
+            <div class="md:col-span-2">
+              ${editable(`experience.${i}.period`, e.period, { tag: "div", className: "font-mono text-xs tracking-widest uppercase text-amber-400/80" })}
+            </div>
+            <div class="md:col-span-4">
+              ${editable(`experience.${i}.role`, e.role, { tag: "h3", className: "font-display text-2xl md:text-3xl font-light italic leading-tight" })}
+              ${editable(`experience.${i}.org`, e.org, { tag: "div", className: "font-mono text-xs tracking-wide text-amber-50/50 mt-1" })}
+            </div>
+            <div class="md:col-span-6">
+              ${editable(`experience.${i}.points`, e.points, { tag: "p", className: "text-base text-amber-50/75 leading-relaxed", multiline: true })}
+            </div>
+            <button data-action="remove-experience" data-eid="${esc(e.id)}" class="editable-only absolute top-4 right-0 p-2 rounded-full bg-neutral-900 border border-neutral-800 hover:border-red-500/40 hover:text-red-400 transition-colors items-center" title="Remover">🗑</button>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderSkillsEducation(d) {
+  return `
+    <section class="relative z-10 border-t border-neutral-800/60">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-28 grid md:grid-cols-2 gap-12 md:gap-20">
+        <div>
+          <div class="font-mono text-[11px] tracking-widest uppercase text-amber-400 mb-4 flex items-center gap-3">
+            <span class="inline-block w-8 h-px bg-amber-400"></span>
+            <span>05 — Habilidades</span>
+          </div>
+          <h2 class="font-display text-4xl md:text-5xl font-light italic leading-none mb-10">Ferramentas.</h2>
+          ${renderSkillGroup("Técnicas", d.skills.tech, "skills.tech")}
+          ${renderSkillGroup("Gestão", d.skills.soft, "skills.soft")}
+          ${renderSkillGroup("Idiomas", d.skills.languages, "skills.languages")}
+        </div>
+        <div>
+          <div class="font-mono text-[11px] tracking-widest uppercase text-amber-400 mb-4 flex items-center gap-3">
+            <span class="inline-block w-8 h-px bg-amber-400"></span>
+            <span>06 — Formação</span>
+          </div>
+          <h2 class="font-display text-4xl md:text-5xl font-light italic leading-none mb-10">Estudos.</h2>
+          <div class="space-y-6">
+            ${d.education.map((ed, i) => `
+              <div class="border-l-2 border-amber-400/40 pl-5 py-1">
+                ${editable(`education.${i}.period`, ed.period, { tag: "div", className: "font-mono text-[10px] tracking-widest uppercase text-amber-400/80" })}
+                ${editable(`education.${i}.title`, ed.title, { tag: "h4", className: "font-display text-xl italic font-light leading-snug mt-1" })}
+                ${editable(`education.${i}.org`, ed.org, { tag: "div", className: "text-sm text-amber-50/60 mt-0.5" })}
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderSkillGroup(label, items, path) {
+  return `
+    <div class="mb-8">
+      <div class="font-mono text-[10px] tracking-widest uppercase text-amber-400/70 mb-3">${esc(label)}</div>
+      <div class="flex flex-wrap gap-2">
+        ${items.map((item, i) => `
+          <span class="font-display italic text-lg px-3 py-1 border-b border-neutral-800 text-amber-50/85 hover:border-amber-400/60 transition-colors">
+            ${state.editing
+              ? `<input type="text" value="${escAttr(item)}" data-skill-edit="${esc(path)}|${i}" class="bg-transparent outline-none italic" size="${Math.max(item.length, 4)}" />`
+              : esc(item)}
+          </span>
+        `).join("")}
+        <button data-action="add-skill" data-path="${esc(path)}" class="editable-only font-mono text-[10px] tracking-widest uppercase border border-dashed border-neutral-700 hover:border-amber-400/60 px-2.5 py-1 rounded-full self-center items-center">+ adicionar</button>
+        ${items.length > 0 ? `<button data-action="remove-skill" data-path="${esc(path)}" class="editable-only font-mono text-[10px] tracking-widest uppercase border border-dashed border-neutral-700 hover:border-red-400/60 px-2.5 py-1 rounded-full self-center items-center">−</button>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderFooter(d) {
+  return `
+    <footer class="relative z-10 border-t border-neutral-800/60">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 py-16">
+        <div class="font-display text-5xl md:text-8xl font-light italic leading-[0.95]">
+          Vamos<br>
+          <span class="text-amber-400">conversar?</span>
+        </div>
+        <div class="mt-10 flex flex-wrap gap-6 font-mono text-xs tracking-wide">
+          <a href="mailto:${escAttr(d.hero.email)}" class="border border-amber-400/40 hover:bg-amber-400 hover:text-neutral-950 transition-colors px-5 py-3 rounded-full uppercase tracking-widest text-[10px] flex items-center gap-2">✉ ${esc(d.hero.email)}</a>
+          <a href="tel:${escAttr(d.hero.phone)}" class="border border-neutral-800 hover:border-amber-400/40 transition-colors px-5 py-3 rounded-full uppercase tracking-widest text-[10px] flex items-center gap-2">☎ ${esc(d.hero.phone)}</a>
+        </div>
+        <div class="mt-16 pt-6 border-t border-neutral-800/60 flex justify-between items-center font-mono text-[10px] tracking-widest uppercase opacity-50">
+          <span>© ${new Date().getFullYear()} Felipe Haiashida</span>
+          <span>Fortaleza · Brasil</span>
+        </div>
+      </div>
+    </footer>
+  `;
+}
+
+function renderVideoModal() {
+  const v = state.videoModal;
+  const inner = v.type === "iframe"
+    ? `<iframe src="${esc(v.src)}" class="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Video"></iframe>`
+    : `<video src="${esc(v.src)}" controls autoplay class="w-full h-full object-contain"></video>`;
+  return `
+    <div data-action="close-modal" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8">
+      <button data-action="close-modal" class="absolute top-4 right-4 p-3 rounded-full bg-neutral-900 border border-neutral-800 hover:border-amber-400/60 transition-colors text-xl leading-none w-10 h-10 flex items-center justify-center">×</button>
+      <div data-stop-propagation class="w-full max-w-5xl aspect-video bg-black">${inner}</div>
+    </div>
+  `;
+}
+
+// ============================================================
+// EVENT HANDLERS / RE-RENDER
+// ============================================================
+
+function fullRender() {
+  document.body.classList.toggle("editing", state.editing);
+  document.getElementById("app").innerHTML = renderApp();
+}
+
+document.body.addEventListener("click", e => {
+  // Close modal — only if clicking the backdrop or the close button
+  if (state.videoModal) {
+    const stop = e.target.closest("[data-stop-propagation]");
+    const close = e.target.closest('[data-action="close-modal"]');
+    if (close && !stop) { state.videoModal = null; fullRender(); return; }
+    if (!stop) { state.videoModal = null; fullRender(); return; }
+  }
+
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+
+  if (action === "toggle-edit") {
+    state.editing = !state.editing;
+    fullRender();
+  }
+  else if (action === "reset") {
+    if (!confirm("Resetar todo o conteúdo para o estado original? Suas edições serão perdidas.")) return;
+    state.data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    state.blobUrls = {};
+    state.pendingFiles = {};
+    saveToStorage();
+    fullRender();
+  }
+  else if (action === "export") {
+    exportHTML();
+  }
+  else if (action === "add-project") {
+    const id = "p" + Date.now();
+    state.data.projects.push({ id, title: "Novo projeto", year: "2025", role: "Função", description: "Descrição do projeto.", videoUrl: "", tags: ["Tag"] });
+    saveToStorage();
+    fullRender();
+  }
+  else if (action === "remove-project") {
+    state.data.projects = state.data.projects.filter(p => p.id !== btn.dataset.pid);
+    saveToStorage();
+    fullRender();
+  }
+  else if (action === "add-tag") {
+    const p = state.data.projects.find(x => x.id === btn.dataset.pid);
+    if (p) { p.tags.push("tag"); saveToStorage(); fullRender(); }
+  }
+  else if (action === "remove-tag") {
+    const p = state.data.projects.find(x => x.id === btn.dataset.pid);
+    if (p && p.tags.length) { p.tags.pop(); saveToStorage(); fullRender(); }
+  }
+  else if (action === "add-experience") {
+    state.data.experience.push({ id: "e" + Date.now(), role: "Cargo", org: "Organização", period: "Ano", points: "Descrição." });
+    saveToStorage();
+    fullRender();
+  }
+  else if (action === "remove-experience") {
+    state.data.experience = state.data.experience.filter(x => x.id !== btn.dataset.eid);
+    saveToStorage();
+    fullRender();
+  }
+  else if (action === "add-skill") {
+    const path = btn.dataset.path.split(".");
+    let obj = state.data;
+    for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
+    obj[path[path.length - 1]] = [...obj[path[path.length - 1]], "novo"];
+    saveToStorage();
+    fullRender();
+  }
+  else if (action === "remove-skill") {
+    const path = btn.dataset.path.split(".");
+    let obj = state.data;
+    for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
+    const arr = obj[path[path.length - 1]];
+    if (arr.length) { arr.pop(); saveToStorage(); fullRender(); }
+  }
+  else if (action === "play-video") {
+    const pid = btn.dataset.pid;
+    const proj = state.data.projects.find(x => x.id === pid);
+    if (proj) {
+      const v = parseVideo(proj.videoUrl, pid);
+      if (v) { state.videoModal = v; fullRender(); }
+    }
+  }
+  else if (action === "upload-video") {
+    const input = document.getElementById("videoFileInput");
+    input.dataset.targetPid = btn.dataset.pid;
+    input.click();
+  }
+});
+
+// File input — when user picks an MP4
+document.getElementById("videoFileInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  const pid = e.target.dataset.targetPid;
+  if (!file || !pid) return;
+
+  // Sanitize filename: lower, no spaces, keep extension
+  const cleanName = file.name.toLowerCase().replace(/[^a-z0-9.\-_]/g, "-").replace(/-+/g, "-");
+  const path = `videos/${cleanName}`;
+
+  // Set blob URL for preview
+  if (state.blobUrls[pid]) URL.revokeObjectURL(state.blobUrls[pid]);
+  state.blobUrls[pid] = URL.createObjectURL(file);
+  state.pendingFiles[pid] = { name: cleanName, size: file.size, file };
+
+  // Update path in data
+  const proj = state.data.projects.find(x => x.id === pid);
+  if (proj) {
+    proj.videoUrl = path;
+    saveToStorage();
+  }
+
+  e.target.value = ""; // reset
+  fullRender();
+});
+
+// Editable text — commit on blur
+document.body.addEventListener("blur", e => {
+  const el = e.target;
+  if (el.matches && el.matches("[data-edit]")) {
+    updatePath(el.dataset.edit, el.innerText);
+  }
+}, true);
+
+// Editable text — Enter to commit (single-line)
+document.body.addEventListener("keydown", e => {
+  const el = e.target;
+  if (el.matches && el.matches("[data-edit]") && !el.dataset.multiline && e.key === "Enter") {
+    e.preventDefault();
+    el.blur();
+  }
+});
+
+// Tag/skill inputs — commit on input
+document.body.addEventListener("input", e => {
+  const el = e.target;
+  if (el.matches && el.matches("[data-tag-edit]")) {
+    const [pid, idx] = el.dataset.tagEdit.split("|");
+    const p = state.data.projects.find(x => x.id === pid);
+    if (p) p.tags[parseInt(idx, 10)] = el.value;
+    saveToStorage();
+  }
+  else if (el.matches && el.matches("[data-skill-edit]")) {
+    const [path, idx] = el.dataset.skillEdit.split("|");
+    const keys = path.split(".");
+    let obj = state.data;
+    for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]];
+    obj[keys[keys.length - 1]][parseInt(idx, 10)] = el.value;
+    saveToStorage();
+  }
+  else if (el.matches && el.matches("[data-video-url]")) {
+    const pid = el.dataset.videoUrl;
+    const p = state.data.projects.find(x => x.id === pid);
+    if (p) {
+      p.videoUrl = el.value;
+      // If user manually changes URL away from blob, clear blob
+      if (state.blobUrls[pid] && !el.value.startsWith("blob:")) {
+        // Don't clear — pendingFile and blob stay so preview keeps working
+        // until refresh
+      }
+      saveToStorage();
+    }
+  }
+});
+
+// ============================================================
+// EXPORT HTML
+// ============================================================
+function exportHTML() {
+  const html = document.documentElement.outerHTML;
+  const dataStr = JSON.stringify(state.data, null, 2);
+
+  // Replace DEFAULT_DATA block in source
+  const re = /\/\/ === DEFAULT_DATA_START[\s\S]*?\/\/ === DEFAULT_DATA_END[^\n]*/;
+  const replacement = `// === DEFAULT_DATA_START — não remova esses comentários ====
+// ============================================================
+const DEFAULT_DATA = ${dataStr};
+// ============================================================
+// === DEFAULT_DATA_END — não remova esses comentários =======`;
+
+  let newHTML = html.replace(re, replacement);
+
+  // Make sure doctype is preserved
+  if (!newHTML.startsWith("<!DOCTYPE")) {
+    newHTML = "<!DOCTYPE html>\n" + newHTML;
+  }
+
+  const pendingNotes = Object.entries(state.pendingFiles)
+    .map(([pid, f]) => `  • videos/${f.name}  (${(f.size / 1024 / 1024).toFixed(1)} MB)`)
+    .join("\n");
+
+  const blob = new Blob([newHTML], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "index.html";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+
+  if (pendingNotes) {
+    setTimeout(() => {
+      alert("HTML baixado!\n\nLembre-se de também enviar estes vídeos para a pasta videos/ do seu repositório:\n\n" + pendingNotes);
+    }, 200);
+  } else {
+    showToast("html exportado");
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+fullRender();
+</script>
+</body>
+</html>
