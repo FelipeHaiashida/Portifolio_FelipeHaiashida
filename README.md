@@ -14,7 +14,6 @@ Desenvolvedor focado em **soluções educacionais interativas**, com aplicaçõe
 
 - 📍 Fortaleza — CE, Brasil
 - ✉ felipehaiashida@gmail.com
-- ☎ +55 (85) 99439-4479
 - 🔗 [GitHub](https://github.com/felipehaiashida) · [LinkedIn](https://www.linkedin.com/in/felipe-haiashida-carvalho-0b7b9919a/)
 
 ---

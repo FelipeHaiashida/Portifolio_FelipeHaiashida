@@ -47,7 +47,6 @@ const DATA = {
     tagline: "Construindo experiências educacionais imersivas — de Fortaleza para o mundo.",
     location: "Fortaleza — CE, Brasil",
     email: "felipehaiashida@gmail.com",
-    phone: "+55 (85) 99439-4479",
     github: "https://github.com/felipehaiashida",
     linkedin: "https://www.linkedin.com/in/felipe-haiashida-carvalho-0b7b9919a/"
   },
@@ -190,10 +189,6 @@ function renderHero(d) {
             <li class="flex items-center gap-3 text-amber-50/70">
               <span class="text-amber-400 shrink-0">✉</span>
               <a href="mailto:${escAttr(d.hero.email)}" class="hover:text-amber-400 transition-colors">${esc(d.hero.email)}</a>
-            </li>
-            <li class="flex items-center gap-3 text-amber-50/70">
-              <span class="text-amber-400 shrink-0">☎</span>
-              <a href="tel:${escAttr(d.hero.phone)}" class="hover:text-amber-400 transition-colors">${esc(d.hero.phone)}</a>
             </li>
             <li class="flex items-center gap-3 text-amber-50/70">
               <span class="text-amber-400 shrink-0">◆</span>
@@ -407,7 +402,6 @@ function renderFooter(d) {
         </div>
         <div class="mt-10 flex flex-wrap gap-6 font-mono text-xs tracking-wide">
           <a href="mailto:${escAttr(d.hero.email)}" class="border border-amber-400/40 hover:bg-amber-400 hover:text-neutral-950 transition-colors px-5 py-3 rounded-full uppercase tracking-widest text-[10px] flex items-center gap-2">✉ ${esc(d.hero.email)}</a>
-          <a href="tel:${escAttr(d.hero.phone)}" class="border border-neutral-800 hover:border-amber-400/40 transition-colors px-5 py-3 rounded-full uppercase tracking-widest text-[10px] flex items-center gap-2">☎ ${esc(d.hero.phone)}</a>
           <a href="${escAttr(d.hero.github)}" target="_blank" rel="noopener" class="border border-neutral-800 hover:border-amber-400/40 transition-colors px-5 py-3 rounded-full uppercase tracking-widest text-[10px] flex items-center gap-2">◆ GitHub</a>
           <a href="${escAttr(d.hero.linkedin)}" target="_blank" rel="noopener" class="border border-neutral-800 hover:border-amber-400/40 transition-colors px-5 py-3 rounded-full uppercase tracking-widest text-[10px] flex items-center gap-2">▣ LinkedIn</a>
         </div>
